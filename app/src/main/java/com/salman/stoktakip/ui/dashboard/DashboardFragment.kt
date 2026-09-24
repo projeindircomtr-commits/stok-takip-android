@@ -53,6 +53,19 @@ class DashboardFragment : Fragment() {
         binding.cardKritikStok.txtBaslik.text = "Kritik Stok"
         binding.cardBekleyenSenkron.txtBaslik.text = "Bekleyen Senkron"
 
+        binding.cardMalzemeler.imgIkon.setImageResource(com.salman.stoktakip.R.drawable.ic_box)
+        binding.cardAraclar.imgIkon.setImageResource(com.salman.stoktakip.R.drawable.ic_truck)
+        binding.cardKategoriler.imgIkon.setImageResource(com.salman.stoktakip.R.drawable.ic_tag)
+        binding.cardLokasyonlar.imgIkon.setImageResource(com.salman.stoktakip.R.drawable.ic_pin)
+        binding.cardKritikStok.imgIkon.setImageResource(com.salman.stoktakip.R.drawable.ic_warning)
+        binding.cardBekleyenSenkron.imgIkon.setImageResource(com.salman.stoktakip.R.drawable.ic_sync)
+
+        listOf(binding.cardMalzemeler, binding.cardAraclar, binding.cardKategoriler, binding.cardLokasyonlar).forEach {
+            it.imgIkon.setColorFilter(android.graphics.Color.parseColor("#0F4C81"))
+        }
+        binding.cardKritikStok.imgIkon.setColorFilter(android.graphics.Color.parseColor("#E74C3C"))
+        binding.cardBekleyenSenkron.imgIkon.setColorFilter(android.graphics.Color.parseColor("#00B4D8"))
+
         binding.cardSaat.imgIkon.visibility = View.GONE
         binding.cardHava.imgIkon.visibility = View.GONE
         binding.cardUsd.imgIkon.visibility = View.GONE
@@ -91,6 +104,9 @@ class DashboardFragment : Fragment() {
                 binding.listSonMalzemeler.removeAllViews()
                 liste.take(5).forEach { m ->
                     val satir = ItemMiniSatirBinding.inflate(layoutInflater, binding.listSonMalzemeler, false)
+                    satir.imgIkon.visibility = View.VISIBLE
+                    satir.imgIkon.setImageResource(com.salman.stoktakip.R.drawable.ic_box)
+                    satir.imgIkon.setColorFilter(android.graphics.Color.parseColor("#0F4C81"))
                     satir.txtBaslik.text = m.ad
                     satir.txtAlt.text = "${formatMiktar(m.miktarDegeri)} ${m.miktarBirimi} • ${m.kategoriAdi ?: "-"}"
                     binding.listSonMalzemeler.addView(satir.root)
@@ -103,6 +119,9 @@ class DashboardFragment : Fragment() {
                 binding.listSonAraclar.removeAllViews()
                 liste.take(5).forEach { a ->
                     val satir = ItemMiniSatirBinding.inflate(layoutInflater, binding.listSonAraclar, false)
+                    satir.imgIkon.visibility = View.VISIBLE
+                    satir.imgIkon.setImageResource(com.salman.stoktakip.R.drawable.ic_truck)
+                    satir.imgIkon.setColorFilter(android.graphics.Color.parseColor("#0F4C81"))
                     satir.txtBaslik.text = a.aracIsmi
                     satir.txtAlt.text = "${a.plaka ?: "-"} • ${a.lokasyonAdi ?: "-"}"
                     binding.listSonAraclar.addView(satir.root)
@@ -148,26 +167,35 @@ class DashboardFragment : Fragment() {
 
     private fun senkronizeEt(repo: com.salman.stoktakip.data.repo.StokRepository) {
         viewLifecycleOwner.lifecycleScope.launch {
-            val sonuc = repo.bekleyenleriSenkronize()
-            verileriYukle(repo)
-            val mesaj = when (sonuc) {
-                is Resource.Basarili -> "Senkronizasyon tamamlandı."
-                is Resource.Hata -> sonuc.mesaj
-                else -> ""
+            try {
+                val sonuc = repo.bekleyenleriSenkronize()
+                val mesaj = when (sonuc) {
+                    is Resource.Basarili -> "Senkronizasyon tamamlandı."
+                    is Resource.Hata -> sonuc.mesaj
+                    else -> ""
+                }
+                verileriYukle(repo)
+                if (mesaj.isNotEmpty() && isAdded) Snackbar.make(binding.root, mesaj, Snackbar.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                if (isAdded) Snackbar.make(binding.root, "Senkronizasyon sırasında bir sorun oluştu.", Snackbar.LENGTH_LONG).show()
             }
-            if (mesaj.isNotEmpty() && isAdded) Snackbar.make(binding.root, mesaj, Snackbar.LENGTH_LONG).show()
         }
     }
 
     private fun verileriYukle(repo: com.salman.stoktakip.data.repo.StokRepository) {
         viewLifecycleOwner.lifecycleScope.launch {
-            binding.swipeRefresh.isRefreshing = true
-            repo.tumVeriyiYenile()
-            when (val sonuc = repo.dashboardGetir()) {
-                is Resource.Basarili -> guncelle(sonuc.data)
-                else -> { /* offline: sadece onbellek sayilariyla devam */ }
+            try {
+                binding.swipeRefresh.isRefreshing = true
+                repo.tumVeriyiYenile()
+                when (val sonuc = repo.dashboardGetir()) {
+                    is Resource.Basarili -> guncelle(sonuc.data)
+                    else -> { /* offline: sadece onbellek sayilariyla devam */ }
+                }
+            } catch (e: Exception) {
+                // sessizce gec - onbellek verileri zaten ekranda
+            } finally {
+                if (_binding != null) binding.swipeRefresh.isRefreshing = false
             }
-            binding.swipeRefresh.isRefreshing = false
         }
     }
 
@@ -184,43 +212,57 @@ class DashboardFragment : Fragment() {
     }
 
     private fun grafikleriCiz(d: com.salman.stoktakip.data.remote.dto.Dashboard) {
-        val kategoriler = d.kategoriDagilimi.orEmpty()
-        val barGirdiler = kategoriler.mapIndexed { i, k -> BarEntry(i.toFloat(), k.adet.toFloat()) }
-        val barSet = BarDataSet(barGirdiler, "Malzeme Sayısı").apply {
-            color = Color.parseColor("#00B4D8")
-            valueTextSize = 11f
-        }
-        binding.barChartKategori.apply {
-            data = BarData(barSet)
-            xAxis.valueFormatter = IndexAxisValueFormatter(kategoriler.map { it.ad })
-            xAxis.granularity = 1f
-            xAxis.setDrawGridLines(false)
-            axisRight.isEnabled = false
-            description.isEnabled = false
-            legend.isEnabled = false
-            animateY(500)
-            invalidate()
-        }
+        try {
+            val kategoriler = d.kategoriDagilimi.orEmpty()
+            if (kategoriler.isEmpty()) {
+                binding.barChartKategori.clear()
+                binding.barChartKategori.invalidate()
+            } else {
+                val barGirdiler = kategoriler.mapIndexed { i, k -> BarEntry(i.toFloat(), k.adet.toFloat()) }
+                val barSet = BarDataSet(barGirdiler, "Malzeme Sayısı").apply {
+                    color = Color.parseColor("#00B4D8")
+                    valueTextSize = 11f
+                }
+                binding.barChartKategori.apply {
+                    data = BarData(barSet)
+                    xAxis.valueFormatter = IndexAxisValueFormatter(kategoriler.map { it.ad })
+                    xAxis.granularity = 1f
+                    xAxis.setDrawGridLines(false)
+                    axisRight.isEnabled = false
+                    description.isEnabled = false
+                    legend.isEnabled = false
+                    animateY(500)
+                    invalidate()
+                }
+            }
 
-        val lokasyonlar = d.lokasyonDagilimi.orEmpty()
-        val renkler = listOf(
-            Color.parseColor("#0F4C81"), Color.parseColor("#00B4D8"), Color.parseColor("#2ECC71"),
-            Color.parseColor("#F39C12"), Color.parseColor("#E74C3C"), Color.parseColor("#9B59B6")
-        )
-        val pieGirdiler = lokasyonlar.map { PieEntry(it.adet.toFloat(), it.ad) }
-        val pieSet = PieDataSet(pieGirdiler, "").apply {
-            colors = renkler
-            valueTextSize = 11f
-        }
-        binding.pieChartLokasyon.apply {
-            data = PieData(pieSet)
-            description.isEnabled = false
-            legend.isEnabled = true
-            legend.orientation = Legend.LegendOrientation.HORIZONTAL
-            legend.textSize = 10f
-            holeRadius = 45f
-            animateY(500)
-            invalidate()
+            val lokasyonlar = d.lokasyonDagilimi.orEmpty()
+            if (lokasyonlar.isEmpty() || lokasyonlar.sumOf { it.adet } == 0) {
+                binding.pieChartLokasyon.clear()
+                binding.pieChartLokasyon.invalidate()
+            } else {
+                val renkler = listOf(
+                    Color.parseColor("#0F4C81"), Color.parseColor("#00B4D8"), Color.parseColor("#2ECC71"),
+                    Color.parseColor("#F39C12"), Color.parseColor("#E74C3C"), Color.parseColor("#9B59B6")
+                )
+                val pieGirdiler = lokasyonlar.filter { it.adet > 0 }.map { PieEntry(it.adet.toFloat(), it.ad) }
+                val pieSet = PieDataSet(pieGirdiler, "").apply {
+                    colors = renkler
+                    valueTextSize = 11f
+                }
+                binding.pieChartLokasyon.apply {
+                    data = PieData(pieSet)
+                    description.isEnabled = false
+                    legend.isEnabled = true
+                    legend.orientation = Legend.LegendOrientation.HORIZONTAL
+                    legend.textSize = 10f
+                    holeRadius = 45f
+                    animateY(500)
+                    invalidate()
+                }
+            }
+        } catch (e: Exception) {
+            // Grafik cizilemese bile uygulama cokmesin - sessizce gec.
         }
     }
 

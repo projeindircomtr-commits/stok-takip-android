@@ -20,7 +20,6 @@
             android:id="@+id/imgIkon"
             android:layout_width="26dp"
             android:layout_height="26dp"
-            app:tint="@color/mavi"
             android:contentDescription="@null" />
 
         <TextView

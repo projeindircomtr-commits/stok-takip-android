@@ -40,7 +40,9 @@ class AracAdapter(
                 Glide.with(binding.imgResim).load(url).centerCrop().into(binding.imgResim)
             } else {
                 Glide.with(binding.imgResim).clear(binding.imgResim)
-                binding.imgResim.setImageDrawable(null)
+                binding.imgResim.setImageResource(com.salman.stoktakip.R.drawable.ic_truck)
+                binding.imgResim.setColorFilter(android.graphics.Color.parseColor("#0F4C81"))
+                binding.imgResim.setPadding(14, 14, 14, 14)
             }
 
             binding.btnDuzenle.setOnClickListener { onDuzenle(item) }

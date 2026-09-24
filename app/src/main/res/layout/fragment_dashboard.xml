@@ -253,11 +253,20 @@
                     android:id="@+id/btnSenkronize"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginBottom="14dp"
                     android:text="@string/senkronize_et"
                     android:textAllCaps="false"
                     app:cornerRadius="14dp"
                     android:backgroundTint="@color/turkuaz" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:gravity="center"
+                    android:text="© 2026 Salman Şantiye Stok Takip  •  Project By Muhammed SALMAN"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
 
             </LinearLayout>
         </ScrollView>

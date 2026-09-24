@@ -39,21 +39,22 @@ class MainActivity : AppCompatActivity() {
         }
 
         val menuOgeleri = mutableListOf(
-            "Ana Sayfa" to { goster(DashboardFragment()) },
-            "Malzemeler" to { goster(MalzemelerFragment()) },
-            "Malzeme Ekle" to { goster(MalzemelerFragment.yeniKayitIle()) },
-            "Araçlar" to { goster(AraclarFragment()) },
-            "Araç Ekle" to { goster(AraclarFragment.yeniKayitIle()) },
-            "Kategoriler / Lokasyon" to { goster(DepoFragment()) },
-            "Raporlar" to { goster(RaporlarFragment()) }
+            Triple("Ana Sayfa", com.salman.stoktakip.R.drawable.ic_home) { goster(DashboardFragment()) },
+            Triple("Malzemeler", com.salman.stoktakip.R.drawable.ic_box) { goster(MalzemelerFragment()) },
+            Triple("Malzeme Ekle", com.salman.stoktakip.R.drawable.ic_box) { goster(MalzemelerFragment.yeniKayitIle()) },
+            Triple("Araçlar", com.salman.stoktakip.R.drawable.ic_truck) { goster(AraclarFragment()) },
+            Triple("Araç Ekle", com.salman.stoktakip.R.drawable.ic_truck) { goster(AraclarFragment.yeniKayitIle()) },
+            Triple("Kategoriler / Lokasyon", com.salman.stoktakip.R.drawable.ic_pin) { goster(DepoFragment()) },
+            Triple("Raporlar", com.salman.stoktakip.R.drawable.ic_chart) { goster(RaporlarFragment()) }
         )
         if (session.adminMi) {
-            menuOgeleri.add("Kullanıcılar" to { goster(KullanicilarFragment()) })
+            menuOgeleri.add(Triple("Kullanıcılar", com.salman.stoktakip.R.drawable.ic_users) { goster(KullanicilarFragment()) })
         }
 
-        menuOgeleri.forEach { (baslik, aksiyon) ->
+        menuOgeleri.forEach { (baslik, ikon, aksiyon) ->
             val satir = ItemDrawerMenuBinding.inflate(layoutInflater, binding.navMenuItems, false)
-            satir.root.text = baslik
+            satir.txtBaslik.text = baslik
+            satir.imgIkon.setImageResource(ikon)
             satir.root.setOnClickListener {
                 aksiyon()
                 binding.drawerLayout.closeDrawers()

@@ -1,9 +1,15 @@
 package com.salman.stoktakip
 
 import android.app.Application
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.salman.stoktakip.data.SessionManager
@@ -19,9 +25,10 @@ class StokApp : Application() {
         super.onCreate()
         session = SessionManager(this)
         planlaPeriyodikSenkron()
+        baglantiDegisimindeSenkronizeEt()
     }
 
-    /** Baglanti geri geldiginde bekleyen kayitlari otomatik gondermeye calisir. */
+    /** Yedek plan: WorkManager 30 dakikada bir bekleyen kayitlari kontrol eder. */
     private fun planlaPeriyodikSenkron() {
         val kisitlamalar = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -36,5 +43,31 @@ class StokApp : Application() {
             ExistingPeriodicWorkPolicy.KEEP,
             istek
         )
+    }
+
+    /**
+     * Asil mekanizma: telefon internete her baglandiginda (wifi acilinca,
+     * ucak modu kapaninca, mobil veri gelince vb.) ANINDA senkronizasyonu
+     * tetikler - 30 dakika beklemez.
+     */
+    private fun baglantiDegisimindeSenkronizeEt() {
+        val cm = getSystemService(ConnectivityManager::class.java) ?: return
+        val istek = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
+
+        cm.registerNetworkCallback(istek, object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                if (!session.girisYapilmisMi) return
+                val anlikIstek = OneTimeWorkRequestBuilder<SyncWorker>()
+                    .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                    .build()
+                WorkManager.getInstance(this@StokApp).enqueueUniqueWork(
+                    "anlik_senkron",
+                    ExistingWorkPolicy.REPLACE,
+                    anlikIstek
+                )
+            }
+        })
     }
 }

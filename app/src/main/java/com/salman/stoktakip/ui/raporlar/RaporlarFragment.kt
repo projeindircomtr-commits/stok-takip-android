@@ -44,6 +44,9 @@ class RaporlarFragment : Fragment() {
                         binding.txtBos.visibility = View.GONE
                         sonuc.data.forEach { m ->
                             val satir = ItemMiniSatirBinding.inflate(layoutInflater, binding.listKritikStok, false)
+                            satir.imgIkon.visibility = android.view.View.VISIBLE
+                            satir.imgIkon.setImageResource(com.salman.stoktakip.R.drawable.ic_warning)
+                            satir.imgIkon.setColorFilter(android.graphics.Color.parseColor("#E74C3C"))
                             satir.txtBaslik.text = m.ad
                             val miktar = if (m.miktarDegeri % 1.0 == 0.0) m.miktarDegeri.toInt().toString() else m.miktarDegeri.toString()
                             satir.txtAlt.text = "$miktar ${m.miktarBirimi} • ${m.kategori ?: "-"} • ${m.lokasyon ?: "-"}"
