@@ -32,3 +32,22 @@ fun bitmapDosyasiniBase64eCevir(context: android.content.Context, uri: android.n
         null
     }
 }
+
+/** Kamera ile cekilecek fotograf icin FileProvider uzerinden gecici bir Uri uretir. */
+fun kameraIcinGeciciUriOlustur(context: android.content.Context): android.net.Uri {
+    val klasor = java.io.File(context.cacheDir, "images").apply { if (!exists()) mkdirs() }
+    val dosya = java.io.File(klasor, "kamera_${System.currentTimeMillis()}.jpg")
+    return androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", dosya)
+}
+
+/** Sunucudan gelen "YYYY-MM-DD HH:MM:SS" formatini "DD.MM.YYYY HH:MM" olarak gosterir. */
+fun tarihiBicimlendir(sunucuTarihi: String): String {
+    return try {
+        val kaynak = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US)
+        val hedef = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm", java.util.Locale.US)
+        val tarih = kaynak.parse(sunucuTarihi) ?: return sunucuTarihi
+        hedef.format(tarih)
+    } catch (e: Exception) {
+        sunucuTarihi
+    }
+}

@@ -26,6 +26,10 @@ class DepoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.toolbar.setNavigationOnClickListener {
+            (activity as? com.salman.stoktakip.ui.main.MainActivity)?.cekmeceyiAc()
+        }
+
         val session = ServiceLocator.session(requireContext())
         val repo = ServiceLocator.stokRepository(requireContext())
 

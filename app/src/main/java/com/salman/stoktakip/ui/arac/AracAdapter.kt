@@ -13,7 +13,8 @@ import com.salman.stoktakip.databinding.ItemAracBinding
 
 class AracAdapter(
     private val onDuzenle: (AracCacheEntity) -> Unit,
-    private val onSil: (AracCacheEntity) -> Unit
+    private val onSil: (AracCacheEntity) -> Unit,
+    private val onDetay: (AracCacheEntity) -> Unit = {}
 ) : ListAdapter<AracCacheEntity, AracAdapter.VH>(DIFF) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -44,6 +45,7 @@ class AracAdapter(
 
             binding.btnDuzenle.setOnClickListener { onDuzenle(item) }
             binding.btnSil.setOnClickListener { onSil(item) }
+            binding.root.setOnClickListener { onDetay(item) }
         }
     }
 

@@ -6,11 +6,14 @@
     android:background="@color/soft_bg">
 
     <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/mavi"
+        android:background="@drawable/gradient_hero"
+        app:navigationIcon="@drawable/ic_hamburger"
         android:title="@string/nav_depo"
-        android:titleTextColor="@color/white" />
+        android:titleTextColor="@color/white"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
 
     <ScrollView
         android:layout_width="match_parent"

@@ -33,12 +33,19 @@ class MalzemelerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.toolbar.setNavigationOnClickListener {
+            (activity as? com.salman.stoktakip.ui.main.MainActivity)?.cekmeceyiAc()
+        }
+        binding.btnCsvDisaAktar.setOnClickListener { csvDisaAktar() }
+        binding.btnPdfDisaAktar.setOnClickListener { pdfDisaAktar() }
+
         adapter = MalzemeAdapter(
             onDuzenle = { kayit ->
                 MalzemeEkleDialogFragment.duzenle(kayit, kategoriListesi, lokasyonListesi)
                     .show(childFragmentManager, "duzenle")
             },
-            onSil = { kayit -> silOnayiSor(kayit) }
+            onSil = { kayit -> silOnayiSor(kayit) },
+            onDetay = { kayit -> MalzemeDetayDialogFragment.yeni(kayit).show(childFragmentManager, "detay") }
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
@@ -78,6 +85,19 @@ class MalzemelerFragment : Fragment() {
         }
 
         viewModel.yenile()
+
+        arguments?.getString(ARG_ILK_SORGU)?.let { sorgu ->
+            if (sorgu.isNotBlank()) binding.editArama.setText(sorgu)
+        }
+
+        if (arguments?.getBoolean(ARG_AUTO_ACIL, false) == true) {
+            arguments?.putBoolean(ARG_AUTO_ACIL, false)
+            view.postDelayed({
+                if (isAdded) {
+                    MalzemeEkleDialogFragment.yeni(kategoriListesi, lokasyonListesi).show(childFragmentManager, "ekle")
+                }
+            }, 400)
+        }
     }
 
     private fun filtrele(sorgu: String) {
@@ -99,9 +119,40 @@ class MalzemelerFragment : Fragment() {
             .show()
     }
 
+    private fun csvDisaAktar() {
+        val basliklar = listOf("Malzeme", "Miktar", "Birim", "Kategori", "Lokasyon")
+        val satirlar = tamListe.map {
+            listOf(it.ad, it.miktarDegeri.toString(), it.miktarBirimi, it.kategoriAdi ?: "-", it.lokasyonAdi ?: "-")
+        }
+        com.salman.stoktakip.util.ExportYardimcisi.csvPaylas(requireContext(), "malzemeler", basliklar, satirlar)
+    }
+
+    private fun pdfDisaAktar() {
+        val basliklar = listOf("Malzeme", "Miktar", "Birim", "Kategori", "Lokasyon")
+        val satirlar = tamListe.map {
+            listOf(it.ad, it.miktarDegeri.toString(), it.miktarBirimi, it.kategoriAdi ?: "-", it.lokasyonAdi ?: "-")
+        }
+        com.salman.stoktakip.util.ExportYardimcisi.pdfPaylas(requireContext(), "malzemeler", "Malzeme Listesi", basliklar, satirlar)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        private const val ARG_AUTO_ACIL = "auto_acil"
+        private const val ARG_ILK_SORGU = "ilk_sorgu"
+
+        /** Drawer'daki "Malzeme Ekle" ile acilinca ekleme formu otomatik gorunur. */
+        fun yeniKayitIle(): MalzemelerFragment = MalzemelerFragment().apply {
+            arguments = Bundle().apply { putBoolean(ARG_AUTO_ACIL, true) }
+        }
+
+        /** Ana sayfadaki arama kutusundan gelince arama sorgusu ile acilir. */
+        fun aramaIle(sorgu: String): MalzemelerFragment = MalzemelerFragment().apply {
+            arguments = Bundle().apply { putString(ARG_ILK_SORGU, sorgu) }
+        }
     }
 }
 

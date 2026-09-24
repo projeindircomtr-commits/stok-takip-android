@@ -12,6 +12,8 @@
     <string name="nav_araclar">Araçlar</string>
     <string name="nav_depo">Depo</string>
     <string name="nav_profil">Profil</string>
+    <string name="nav_raporlar">Raporlar</string>
+    <string name="nav_kullanicilar">Kullanıcılar</string>
 
     <string name="ara_hint">Ara…</string>
     <string name="ekle">Ekle</string>

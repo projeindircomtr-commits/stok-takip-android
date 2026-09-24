@@ -15,6 +15,15 @@ interface ApiService {
     @GET("dashboard.php")
     suspend fun dashboard(): Response<ApiResponse<Dashboard>>
 
+    @GET("kritik-stok.php")
+    suspend fun kritikStok(): Response<ApiResponse<List<KritikMalzeme>>>
+
+    @GET("kullanicilar.php")
+    suspend fun kullanicilar(): Response<ApiResponse<List<KullaniciListItem>>>
+
+    @POST("kullanicilar.php")
+    suspend fun kullaniciEkle(@Body istek: KullaniciEkleIstek): Response<ApiResponse<Map<String, Int>>>
+
     @GET("kategoriler.php")
     suspend fun kategoriler(): Response<ApiResponse<List<Kategori>>>
 

@@ -13,7 +13,8 @@ import com.salman.stoktakip.databinding.ItemMalzemeBinding
 
 class MalzemeAdapter(
     private val onDuzenle: (MalzemeCacheEntity) -> Unit,
-    private val onSil: (MalzemeCacheEntity) -> Unit
+    private val onSil: (MalzemeCacheEntity) -> Unit,
+    private val onDetay: (MalzemeCacheEntity) -> Unit = {}
 ) : ListAdapter<MalzemeCacheEntity, MalzemeAdapter.VH>(DIFF) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -45,6 +46,7 @@ class MalzemeAdapter(
 
             binding.btnDuzenle.setOnClickListener { onDuzenle(item) }
             binding.btnSil.setOnClickListener { onSil(item) }
+            binding.root.setOnClickListener { onDetay(item) }
         }
     }
 

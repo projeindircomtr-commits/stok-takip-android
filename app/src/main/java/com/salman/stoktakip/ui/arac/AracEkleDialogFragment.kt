@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.net.Uri
 import android.os.Bundle
 import android.widget.ArrayAdapter
+import android.widget.PopupMenu
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
@@ -13,6 +14,7 @@ import com.salman.stoktakip.data.local.entity.AracCacheEntity
 import com.salman.stoktakip.databinding.DialogAracEkleBinding
 import com.salman.stoktakip.util.DropdownOgesi
 import com.salman.stoktakip.util.bitmapDosyasiniBase64eCevir
+import com.salman.stoktakip.util.kameraIcinGeciciUriOlustur
 
 class AracEkleDialogFragment : DialogFragment() {
 
@@ -22,12 +24,49 @@ class AracEkleDialogFragment : DialogFragment() {
     private val viewModel: AraclarViewModel by activityViewModels()
     private var secilenResimUri: Uri? = null
     private var duzenlenenId: Int? = null
+    private var kameraGeciciUri: Uri? = null
 
     private val galeriSec = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
             secilenResimUri = uri
             Glide.with(this).load(uri).centerCrop().into(binding.imgOnizleme)
         }
+    }
+
+    private val kameraCek = registerForActivityResult(ActivityResultContracts.TakePicture()) { basarili ->
+        if (basarili && kameraGeciciUri != null) {
+            secilenResimUri = kameraGeciciUri
+            Glide.with(this).load(kameraGeciciUri).centerCrop().into(binding.imgOnizleme)
+        }
+    }
+
+    private val kameraIzniIste = registerForActivityResult(ActivityResultContracts.RequestPermission()) { verildi ->
+        if (verildi) kamerayiBaslat()
+    }
+
+    private fun kamerayiBaslat() {
+        val uri = kameraIcinGeciciUriOlustur(requireContext())
+        kameraGeciciUri = uri
+        kameraCek.launch(uri)
+    }
+
+    private fun resimSecimMenusuGoster(ankor: android.view.View) {
+        PopupMenu(requireContext(), ankor).apply {
+            menu.add("Kameradan Çek")
+            menu.add("Galeriden Seç")
+            setOnMenuItemClickListener { item ->
+                when (item.title) {
+                    "Kameradan Çek" -> {
+                        val izinVar = androidx.core.content.ContextCompat.checkSelfPermission(
+                            requireContext(), android.Manifest.permission.CAMERA
+                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                        if (izinVar) kamerayiBaslat() else kameraIzniIste.launch(android.Manifest.permission.CAMERA)
+                    }
+                    "Galeriden Seç" -> galeriSec.launch("image/*")
+                }
+                true
+            }
+        }.show()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -62,7 +101,7 @@ class AracEkleDialogFragment : DialogFragment() {
             }
         }
 
-        binding.btnResimSec.setOnClickListener { galeriSec.launch("image/*") }
+        binding.btnResimSec.setOnClickListener { resimSecimMenusuGoster(it) }
 
         return MaterialAlertDialogBuilder(requireContext())
             .setTitle(if (duzenlenenId != null) "Araç Güncelle" else "Yeni Araç")

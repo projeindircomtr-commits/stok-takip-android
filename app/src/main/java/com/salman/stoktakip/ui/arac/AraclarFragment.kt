@@ -35,12 +35,19 @@ class AraclarFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.toolbar.setNavigationOnClickListener {
+            (activity as? com.salman.stoktakip.ui.main.MainActivity)?.cekmeceyiAc()
+        }
+        binding.btnCsvDisaAktar.setOnClickListener { csvDisaAktar() }
+        binding.btnPdfDisaAktar.setOnClickListener { pdfDisaAktar() }
+
         adapter = AracAdapter(
             onDuzenle = { kayit ->
                 AracEkleDialogFragment.duzenle(kayit, kategoriListesi, lokasyonListesi)
                     .show(childFragmentManager, "duzenle")
             },
-            onSil = { kayit -> silOnayiSor(kayit) }
+            onSil = { kayit -> silOnayiSor(kayit) },
+            onDetay = { kayit -> AracDetayDialogFragment.yeni(kayit).show(childFragmentManager, "detay") }
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
@@ -74,6 +81,15 @@ class AraclarFragment : Fragment() {
         }
 
         viewModel.yenile()
+
+        if (arguments?.getBoolean(ARG_AUTO_ACIL, false) == true) {
+            arguments?.putBoolean(ARG_AUTO_ACIL, false)
+            view.postDelayed({
+                if (isAdded) {
+                    AracEkleDialogFragment.yeni(kategoriListesi, lokasyonListesi).show(childFragmentManager, "ekle")
+                }
+            }, 400)
+        }
     }
 
     private fun filtrele(sorgu: String) {
@@ -95,9 +111,33 @@ class AraclarFragment : Fragment() {
             .show()
     }
 
+    private fun csvDisaAktar() {
+        val basliklar = listOf("Araç", "Plaka", "Kamera", "GPS", "Sahip", "Telefon", "Kategori", "Lokasyon")
+        val satirlar = tamListe.map {
+            listOf(it.aracIsmi, it.plaka ?: "-", it.kamera, it.gps, it.sahip ?: "-", it.telefon ?: "-", it.kategoriAdi ?: "-", it.lokasyonAdi ?: "-")
+        }
+        com.salman.stoktakip.util.ExportYardimcisi.csvPaylas(requireContext(), "araclar", basliklar, satirlar)
+    }
+
+    private fun pdfDisaAktar() {
+        val basliklar = listOf("Araç", "Plaka", "Kategori", "Lokasyon")
+        val satirlar = tamListe.map {
+            listOf(it.aracIsmi, it.plaka ?: "-", it.kategoriAdi ?: "-", it.lokasyonAdi ?: "-")
+        }
+        com.salman.stoktakip.util.ExportYardimcisi.pdfPaylas(requireContext(), "araclar", "Araç Listesi", basliklar, satirlar)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        private const val ARG_AUTO_ACIL = "auto_acil"
+
+        fun yeniKayitIle(): AraclarFragment = AraclarFragment().apply {
+            arguments = Bundle().apply { putBoolean(ARG_AUTO_ACIL, true) }
+        }
     }
 }
 

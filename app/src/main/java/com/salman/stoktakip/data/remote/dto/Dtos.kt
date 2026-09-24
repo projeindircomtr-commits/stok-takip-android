@@ -99,11 +99,47 @@ data class AracIstek(
 
 data class AdIstek(val ad: String)
 
+data class KategoriDagilim(
+    val ad: String,
+    val adet: Int
+)
+
+data class LokasyonDagilim(
+    val ad: String,
+    val adet: Int
+)
+
 data class Dashboard(
     @SerializedName("malzeme_sayisi") val malzemeSayisi: Int,
     @SerializedName("arac_sayisi") val aracSayisi: Int,
     @SerializedName("kategori_sayisi") val kategoriSayisi: Int,
     @SerializedName("lokasyon_sayisi") val lokasyonSayisi: Int,
     @SerializedName("bekleyen_senkron") val bekleyenSenkron: Int,
+    @SerializedName("kritik_stok") val kritikStok: Int,
+    @SerializedName("kategori_dagilimi") val kategoriDagilimi: List<KategoriDagilim>?,
+    @SerializedName("lokasyon_dagilimi") val lokasyonDagilimi: List<LokasyonDagilim>?,
     val kullanici: Kullanici
+)
+
+data class KritikMalzeme(
+    val id: Int,
+    val ad: String,
+    @SerializedName("miktar_degeri") val miktarDegeri: Double,
+    @SerializedName("miktar_birimi") val miktarBirimi: String,
+    val kategori: String?,
+    val lokasyon: String?
+)
+
+data class KullaniciListItem(
+    val id: Int,
+    @SerializedName("ad_soyad") val adSoyad: String,
+    @SerializedName("kullanici_adi") val kullaniciAdi: String,
+    val rol: String
+)
+
+data class KullaniciEkleIstek(
+    @SerializedName("ad_soyad") val adSoyad: String,
+    @SerializedName("kullanici_adi") val kullaniciAdi: String,
+    val sifre: String,
+    val rol: String
 )

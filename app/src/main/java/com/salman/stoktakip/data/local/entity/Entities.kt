@@ -14,7 +14,8 @@ data class MalzemeCacheEntity(
     val kategoriAdi: String?,
     val lokasyonAdi: String?,
     val resim: String?,
-    val syncStatus: String?
+    val syncStatus: String?,
+    val olusturmaTarihi: String? = null
 )
 
 @Entity(tableName = "arac_cache")
@@ -32,7 +33,8 @@ data class AracCacheEntity(
     val kategoriAdi: String?,
     val lokasyonAdi: String?,
     val resim: String?,
-    val syncStatus: String?
+    val syncStatus: String?,
+    val olusturmaTarihi: String? = null
 )
 
 @Entity(tableName = "kategori_cache")

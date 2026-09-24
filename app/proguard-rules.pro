@@ -11,5 +11,9 @@
 # Room
 -keep class androidx.room.** { *; }
 
+# MPAndroidChart
+-keep class com.github.mikephil.charting.** { *; }
+-dontwarn com.github.mikephil.charting.**
+
 # Genel
 -keepattributes SourceFile,LineNumberTable

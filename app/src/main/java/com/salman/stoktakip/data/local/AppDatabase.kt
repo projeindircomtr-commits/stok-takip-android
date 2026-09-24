@@ -15,7 +15,7 @@ import com.salman.stoktakip.data.local.entity.*
         LokasyonCacheEntity::class,
         BekleyenIslemEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

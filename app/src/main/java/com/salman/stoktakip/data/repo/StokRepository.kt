@@ -38,13 +38,13 @@ class StokRepository(
             db.malzemeDao().onbellekYenile(malzemeler.map {
                 MalzemeCacheEntity(
                     it.id, it.ad, it.miktarDegeri, it.miktarBirimi, it.kategoriId, it.lokasyonId,
-                    it.kategori, it.lokasyon, it.resim, it.syncStatus
+                    it.kategori, it.lokasyon, it.resim, it.syncStatus, it.createdAt
                 )
             })
             db.aracDao().onbellekYenile(araclar.map {
                 AracCacheEntity(
                     it.id, it.aracIsmi, it.model, it.plaka, it.kamera, it.gps, it.sahip, it.telefon,
-                    it.kategoriId, it.lokasyonId, it.kategori, it.lokasyon, it.resim, it.syncStatus
+                    it.kategoriId, it.lokasyonId, it.kategori, it.lokasyon, it.resim, it.syncStatus, it.createdAt
                 )
             })
             Resource.Basarili(Unit)
@@ -186,6 +186,51 @@ class StokRepository(
         } catch (e: Exception) {
             Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
         }
+    }
+
+    /* ------------------------------ DASHBOARD / RAPORLAR / KULLANICILAR ------------------------------ */
+    suspend fun dashboardGetir(): Resource<Dashboard> {
+        if (!AgDurumu.bagliMi(context)) return Resource.Hata("Çevrimdışısınız.", "offline")
+        return try {
+            val cevap = api.dashboard()
+            val govde = cevap.body()
+            if (cevap.isSuccessful && govde?.success == true && govde.data != null) Resource.Basarili(govde.data)
+            else Resource.Hata(govde?.message ?: "Veriler alınamadı.")
+        } catch (e: Exception) {
+            Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
+        }
+    }
+
+    suspend fun kritikStokGetir(): Resource<List<KritikMalzeme>> {
+        if (!AgDurumu.bagliMi(context)) return Resource.Hata("Çevrimdışısınız.", "offline")
+        return try {
+            val cevap = api.kritikStok()
+            val govde = cevap.body()
+            if (cevap.isSuccessful && govde?.success == true) Resource.Basarili(govde.data.orEmpty())
+            else Resource.Hata(govde?.message ?: "Veriler alınamadı.")
+        } catch (e: Exception) {
+            Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
+        }
+    }
+
+    suspend fun kullanicilarGetir(): Resource<List<KullaniciListItem>> {
+        if (!AgDurumu.bagliMi(context)) return Resource.Hata("Çevrimdışısınız.", "offline")
+        return try {
+            val cevap = api.kullanicilar()
+            val govde = cevap.body()
+            if (cevap.isSuccessful && govde?.success == true) Resource.Basarili(govde.data.orEmpty())
+            else Resource.Hata(govde?.message ?: "Veriler alınamadı.")
+        } catch (e: Exception) {
+            Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
+        }
+    }
+
+    suspend fun kullaniciEkle(adSoyad: String, kullaniciAdi: String, sifre: String, rol: String): Resource<Unit> = try {
+        val cevap = api.kullaniciEkle(KullaniciEkleIstek(adSoyad, kullaniciAdi, sifre, rol))
+        if (cevap.isSuccessful && cevap.body()?.success == true) Resource.Basarili(Unit)
+        else Resource.Hata(cevap.body()?.message ?: "Kullanıcı eklenemedi.")
+    } catch (e: Exception) {
+        Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
     }
 
     /* ------------------------------ KATEGORI / LOKASYON EKLE ------------------------------ */
