@@ -10,8 +10,10 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/gradient_hero"
+        android:background="@drawable/gradient_hero_glossy"
         app:navigationIcon="@drawable/ic_hamburger"
+            app:logo="@drawable/ic_logo_badge"
+            app:logoDescription="@string/app_name"
         android:title="@string/nav_raporlar"
         android:titleTextColor="@color/white" />
 

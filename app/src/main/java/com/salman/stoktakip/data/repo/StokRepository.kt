@@ -233,43 +233,6 @@ class StokRepository(
         Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
     }
 
-    /* ------------------------------ ARIZA BILDIRIMLERI ------------------------------ */
-    suspend fun arizalarGetir(durum: String? = null): Resource<List<ArizaBildirim>> {
-        if (!AgDurumu.bagliMi(context)) return Resource.Hata("Çevrimdışısınız.", "offline")
-        return try {
-            val cevap = api.arizalar(durum)
-            val govde = cevap.body()
-            if (cevap.isSuccessful && govde?.success == true) Resource.Basarili(govde.data.orEmpty())
-            else Resource.Hata(govde?.message ?: "Veriler alınamadı.")
-        } catch (e: Exception) {
-            Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
-        }
-    }
-
-    suspend fun arizaEkle(plaka: String, soforAdi: String?, telefon: String?, konum: String?, arizaNotu: String): Resource<Unit> = try {
-        val cevap = api.arizaEkle(ArizaIstek(plaka, soforAdi, telefon, konum, arizaNotu))
-        if (cevap.isSuccessful && cevap.body()?.success == true) Resource.Basarili(Unit)
-        else Resource.Hata(cevap.body()?.message ?: "Arıza kaydedilemedi.")
-    } catch (e: Exception) {
-        Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
-    }
-
-    suspend fun arizaDurumGuncelle(id: Int, durum: String): Resource<Unit> = try {
-        val cevap = api.arizaDurumGuncelle(id, DurumIstek(durum))
-        if (cevap.isSuccessful && cevap.body()?.success == true) Resource.Basarili(Unit)
-        else Resource.Hata(cevap.body()?.message ?: "Güncellenemedi.")
-    } catch (e: Exception) {
-        Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
-    }
-
-    suspend fun arizaSil(id: Int): Resource<Unit> = try {
-        val cevap = api.arizaSil(id)
-        if (cevap.isSuccessful && cevap.body()?.success == true) Resource.Basarili(Unit)
-        else Resource.Hata(cevap.body()?.message ?: "Silinemedi.")
-    } catch (e: Exception) {
-        Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
-    }
-
     /* ------------------------------ YAKIT TAKIP ------------------------------ */
     suspend fun yakitKayitlariGetir(): Resource<List<YakitKaydi>> {
         if (!AgDurumu.bagliMi(context)) return Resource.Hata("Çevrimdışısınız.", "offline")
@@ -283,8 +246,8 @@ class StokRepository(
         }
     }
 
-    suspend fun yakitEkle(plaka: String, yakitTipi: String, litre: Double, ad: String?, soyad: String?, telefon: String?): Resource<Unit> = try {
-        val cevap = api.yakitEkle(YakitIstek(plaka, yakitTipi, litre, ad, soyad, telefon))
+    suspend fun yakitEkle(plaka: String, yakitTipi: String, litre: Double, birimFiyat: Double?, ad: String?, soyad: String?, telefon: String?): Resource<Unit> = try {
+        val cevap = api.yakitEkle(YakitIstek(plaka, yakitTipi, litre, birimFiyat, ad, soyad, telefon))
         if (cevap.isSuccessful && cevap.body()?.success == true) Resource.Basarili(Unit)
         else Resource.Hata(cevap.body()?.message ?: "Yakıt kaydı eklenemedi.")
     } catch (e: Exception) {

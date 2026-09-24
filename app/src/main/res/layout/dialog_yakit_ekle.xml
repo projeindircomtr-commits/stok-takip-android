@@ -45,15 +45,28 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
-                <AutoCompleteTextView
-                    android:id="@+id/dropdownYakitTipi"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editBirimFiyat"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Yakıt Tipi"
-                    android:inputType="none" />
+                    android:hint="Birim Fiyat (TL/L)"
+                    android:inputType="numberDecimal" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+            <AutoCompleteTextView
+                android:id="@+id/dropdownYakitTipi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Yakıt Tipi"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <View android:layout_width="match_parent" android:layout_height="4dp" />
 

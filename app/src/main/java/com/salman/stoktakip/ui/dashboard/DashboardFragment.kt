@@ -43,7 +43,7 @@ class DashboardFragment : Fragment() {
         val session = ServiceLocator.session(requireContext())
         val repo = ServiceLocator.stokRepository(requireContext())
 
-        binding.toolbar.setNavigationOnClickListener { (activity as? MainActivity)?.cekmeceyiAc() }
+        binding.btnMenu.setOnClickListener { (activity as? MainActivity)?.cekmeceyiAc() }
         binding.txtHosgeldin.text = "Hoş geldiniz, ${session.adSoyad ?: session.kullaniciAdi}"
 
         binding.cardMalzemeler.txtBaslik.text = "Malzemeler"
@@ -90,7 +90,6 @@ class DashboardFragment : Fragment() {
         binding.cardKritikStok.root.setOnClickListener { git(RaporlarFragment()) }
         binding.cardBekleyenSenkron.root.setOnClickListener { senkronizeEt(repo) }
 
-        binding.btnArizaGit.setOnClickListener { git(com.salman.stoktakip.ui.ariza.ArizalarFragment()) }
         binding.btnYakitGit.setOnClickListener { git(com.salman.stoktakip.ui.yakit.YakitFragment()) }
 
         binding.btnAra.setOnClickListener {

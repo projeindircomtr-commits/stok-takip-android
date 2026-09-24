@@ -24,18 +24,6 @@ interface ApiService {
     @POST("kullanicilar.php")
     suspend fun kullaniciEkle(@Body istek: KullaniciEkleIstek): Response<ApiResponse<Map<String, Int>>>
 
-    @GET("arizalar.php")
-    suspend fun arizalar(@Query("durum") durum: String? = null): Response<ApiResponse<List<ArizaBildirim>>>
-
-    @POST("arizalar.php")
-    suspend fun arizaEkle(@Body istek: ArizaIstek): Response<ApiResponse<Map<String, Int>>>
-
-    @PUT("arizalar.php")
-    suspend fun arizaDurumGuncelle(@Query("id") id: Int, @Body istek: DurumIstek): Response<ApiResponse<Any>>
-
-    @DELETE("arizalar.php")
-    suspend fun arizaSil(@Query("id") id: Int): Response<ApiResponse<Any>>
-
     @GET("yakit.php")
     suspend fun yakitKayitlari(): Response<ApiResponse<List<YakitKaydi>>>
 

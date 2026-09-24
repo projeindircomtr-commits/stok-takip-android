@@ -6,14 +6,112 @@
     android:orientation="vertical"
     android:background="@color/soft_bg">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/gradient_hero"
-        app:navigationIcon="@drawable/ic_hamburger"
-        android:title="@string/app_name"
-        android:titleTextColor="@color/white" />
+        android:layout_height="wrap_content"
+        android:background="@drawable/gradient_hero_glossy_bottom_rounded"
+        android:orientation="vertical"
+        android:paddingTop="18dp"
+        android:paddingBottom="20dp"
+        android:paddingHorizontal="16dp"
+        android:elevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnMenu"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_hamburger"
+                android:contentDescription="Menü" />
+
+            <ImageView
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_marginStart="6dp"
+                android:src="@drawable/ic_logo_badge"
+                android:contentDescription="@string/app_name" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="10dp"
+                android:text="@string/app_name"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/txtHosgeldin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/white"
+            android:textSize="19sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Malzeme, araç, lokasyon ve kategori yönetimini tek yerden takip edin."
+            android:textColor="#E6FFFFFF"
+            android:textSize="13sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_glass_pill"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    app:tint="@color/white"
+                    android:contentDescription="@null" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editAra"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@null"
+                    android:hint="Malzeme veya araç ara"
+                    android:textColor="@color/white"
+                    android:textColorHint="#D9FFFFFF"
+                    android:singleLine="true" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAra"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:text="Ara"
+                android:textAllCaps="false"
+                android:textColor="@color/mavi"
+                app:backgroundTint="@color/white"
+                app:cornerRadius="24dp" />
+        </LinearLayout>
+    </LinearLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
@@ -29,56 +127,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="12dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/gradient_hero_rounded"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:id="@+id/txtHosgeldin"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/white"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Malzeme, araç, lokasyon ve kategori yönetimini tek yerden takip edin."
-                        android:textColor="#E6FFFFFF"
-                        android:textSize="13sp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="14dp"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/editAra"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
-                            android:layout_weight="1"
-                            android:background="@android:color/white"
-                            android:hint="Malzeme veya araç ara"
-                            android:paddingHorizontal="14dp"
-                            android:singleLine="true" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAra"
-                            android:layout_width="wrap_content"
-                            android:layout_height="48dp"
-                            android:layout_marginStart="6dp"
-                            android:text="Ara"
-                            android:textAllCaps="false"
-                            android:backgroundTint="@color/dark" />
-                    </LinearLayout>
-                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -126,36 +174,16 @@
                     <include layout="@layout/item_stat_card" android:id="@+id/cardEur" />
                 </LinearLayout>
 
-                <LinearLayout
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnYakitGit"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="52dp"
                     android:layout_marginTop="4dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnArizaGit"
-                        android:layout_width="0dp"
-                        android:layout_height="52dp"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="6dp"
-                        android:text="Arızalı Araç Bildir"
-                        android:textAllCaps="false"
-                        android:textSize="12sp"
-                        app:cornerRadius="14dp"
-                        android:backgroundTint="@color/danger" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnYakitGit"
-                        android:layout_width="0dp"
-                        android:layout_height="52dp"
-                        android:layout_weight="1"
-                        android:layout_marginStart="6dp"
-                        android:text="Yakıt Takip"
-                        android:textAllCaps="false"
-                        android:textSize="12sp"
-                        app:cornerRadius="14dp"
-                        android:backgroundTint="@color/turkuaz" />
-                </LinearLayout>
+                    android:text="⛽  Yakıt Takip"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    app:cornerRadius="14dp"
+                    android:backgroundTint="@color/turkuaz" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
