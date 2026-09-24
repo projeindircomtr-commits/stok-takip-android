@@ -177,7 +177,7 @@ class DashboardFragment : Fragment() {
                 verileriYukle(repo)
                 if (mesaj.isNotEmpty() && isAdded) Snackbar.make(binding.root, mesaj, Snackbar.LENGTH_LONG).show()
             } catch (e: Exception) {
-                if (isAdded) Snackbar.make(binding.root, "Senkronizasyon sırasında bir sorun oluştu.", Snackbar.LENGTH_LONG).show()
+                if (isAdded) Snackbar.make(binding.root, "Hata: ${e.javaClass.simpleName}: ${e.message}", Snackbar.LENGTH_LONG).show()
             }
         }
     }
@@ -186,6 +186,8 @@ class DashboardFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 binding.swipeRefresh.isRefreshing = true
+                // Ekran her acildiginda/yenilendiginde bekleyen kayitlari da sessizce gondermeyi dene.
+                repo.bekleyenleriSenkronize()
                 repo.tumVeriyiYenile()
                 when (val sonuc = repo.dashboardGetir()) {
                     is Resource.Basarili -> guncelle(sonuc.data)

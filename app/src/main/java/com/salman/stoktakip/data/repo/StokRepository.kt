@@ -254,31 +254,39 @@ class StokRepository(
     suspend fun bekleyenleriSenkronize(): Resource<Unit> {
         if (!AgDurumu.bagliMi(context)) return Resource.Hata("Çevrimdışı.", "offline")
 
-        val bekleyenler = db.bekleyenIslemDao().hepsi()
-        if (bekleyenler.isEmpty()) return Resource.Basarili(Unit)
+        return try {
+            val bekleyenler = db.bekleyenIslemDao().hepsi()
+            if (bekleyenler.isEmpty()) return Resource.Basarili(Unit)
 
-        var hataOldu = false
-        for (kayit in bekleyenler) {
-            try {
-                val basarili = when (kayit.varlik) {
-                    "malzeme" -> gonderMalzemeIslemi(kayit)
-                    "arac" -> gonderAracIslemi(kayit)
-                    else -> true
-                }
-                if (basarili) {
-                    db.bekleyenIslemDao().sil(kayit)
-                } else {
+            var hataOldu = false
+            var sonHataMesaji = ""
+            for (kayit in bekleyenler) {
+                try {
+                    val basarili = when (kayit.varlik) {
+                        "malzeme" -> gonderMalzemeIslemi(kayit)
+                        "arac" -> gonderAracIslemi(kayit)
+                        else -> true
+                    }
+                    if (basarili) {
+                        db.bekleyenIslemDao().sil(kayit)
+                    } else {
+                        hataOldu = true
+                        sonHataMesaji = "sunucu kaydı reddetti"
+                    }
+                } catch (e: Exception) {
+                    val hataMetni = "${e.javaClass.simpleName}: ${e.message}"
+                    db.bekleyenIslemDao().hataYaz(kayit.id, hataMetni)
                     hataOldu = true
+                    sonHataMesaji = hataMetni
                 }
-            } catch (e: Exception) {
-                db.bekleyenIslemDao().hataYaz(kayit.id, e.message ?: "Bilinmeyen hata")
-                hataOldu = true
             }
-        }
 
-        tumVeriyiYenile()
-        return if (hataOldu) Resource.Hata("Bazı kayıtlar senkronize edilemedi, tekrar denenecek.")
-        else Resource.Basarili(Unit)
+            tumVeriyiYenile()
+            if (hataOldu) Resource.Hata("Senkron hatası ($sonHataMesaji)")
+            else Resource.Basarili(Unit)
+        } catch (e: Exception) {
+            Resource.Hata("Senkron hatası (${e.javaClass.simpleName}: ${e.message})")
+        }
     }
 
     private suspend fun gonderMalzemeIslemi(kayit: BekleyenIslemEntity): Boolean {
