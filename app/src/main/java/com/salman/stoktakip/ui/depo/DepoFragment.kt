@@ -65,7 +65,10 @@ class DepoFragment : Fragment() {
                 binding.listKategoriler.removeAllViews()
                 liste.forEach { kategori ->
                     val satir = ItemBasitSatirBinding.inflate(layoutInflater, binding.listKategoriler, false)
-                    satir.root.text = kategori.ad
+                    satir.txtAd.text = kategori.ad
+                    satir.txtAd.setCompoundDrawablesWithIntrinsicBounds(
+                        com.salman.stoktakip.R.drawable.ic_tag, 0, 0, 0
+                    )
                     binding.listKategoriler.addView(satir.root)
                 }
             }
@@ -76,7 +79,10 @@ class DepoFragment : Fragment() {
                 binding.listLokasyonlar.removeAllViews()
                 liste.forEach { lokasyon ->
                     val satir = ItemBasitSatirBinding.inflate(layoutInflater, binding.listLokasyonlar, false)
-                    satir.root.text = lokasyon.ad
+                    satir.txtAd.text = lokasyon.ad
+                    satir.txtAd.setCompoundDrawablesWithIntrinsicBounds(
+                        com.salman.stoktakip.R.drawable.ic_pin, 0, 0, 0
+                    )
                     binding.listLokasyonlar.addView(satir.root)
                 }
             }

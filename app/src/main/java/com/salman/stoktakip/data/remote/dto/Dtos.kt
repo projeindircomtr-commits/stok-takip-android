@@ -143,3 +143,48 @@ data class KullaniciEkleIstek(
     val sifre: String,
     val rol: String
 )
+
+data class ArizaBildirim(
+    val id: Int,
+    @SerializedName("arac_id") val aracId: Int?,
+    val plaka: String,
+    @SerializedName("sofor_adi") val soforAdi: String?,
+    val telefon: String?,
+    val konum: String?,
+    @SerializedName("ariza_notu") val arizaNotu: String,
+    val durum: String,
+    @SerializedName("created_at") val createdAt: String?,
+    @SerializedName("arac_ismi") val aracIsmi: String?
+)
+
+data class ArizaIstek(
+    val plaka: String,
+    @SerializedName("sofor_adi") val soforAdi: String?,
+    val telefon: String?,
+    val konum: String?,
+    @SerializedName("ariza_notu") val arizaNotu: String
+)
+
+data class DurumIstek(val durum: String)
+
+data class YakitKaydi(
+    val id: Int,
+    @SerializedName("arac_id") val aracId: Int?,
+    val plaka: String,
+    @SerializedName("yakit_tipi") val yakitTipi: String,
+    val litre: Double,
+    @SerializedName("verilen_ad") val verilenAd: String?,
+    @SerializedName("verilen_soyad") val verilenSoyad: String?,
+    @SerializedName("verilen_telefon") val verilenTelefon: String?,
+    @SerializedName("created_at") val createdAt: String?,
+    @SerializedName("arac_ismi") val aracIsmi: String?
+)
+
+data class YakitIstek(
+    val plaka: String,
+    @SerializedName("yakit_tipi") val yakitTipi: String,
+    val litre: Double,
+    @SerializedName("verilen_ad") val verilenAd: String?,
+    @SerializedName("verilen_soyad") val verilenSoyad: String?,
+    @SerializedName("verilen_telefon") val verilenTelefon: String?
+)

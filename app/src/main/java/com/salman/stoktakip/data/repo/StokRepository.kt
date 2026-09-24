@@ -233,6 +233,72 @@ class StokRepository(
         Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
     }
 
+    /* ------------------------------ ARIZA BILDIRIMLERI ------------------------------ */
+    suspend fun arizalarGetir(durum: String? = null): Resource<List<ArizaBildirim>> {
+        if (!AgDurumu.bagliMi(context)) return Resource.Hata("Çevrimdışısınız.", "offline")
+        return try {
+            val cevap = api.arizalar(durum)
+            val govde = cevap.body()
+            if (cevap.isSuccessful && govde?.success == true) Resource.Basarili(govde.data.orEmpty())
+            else Resource.Hata(govde?.message ?: "Veriler alınamadı.")
+        } catch (e: Exception) {
+            Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
+        }
+    }
+
+    suspend fun arizaEkle(plaka: String, soforAdi: String?, telefon: String?, konum: String?, arizaNotu: String): Resource<Unit> = try {
+        val cevap = api.arizaEkle(ArizaIstek(plaka, soforAdi, telefon, konum, arizaNotu))
+        if (cevap.isSuccessful && cevap.body()?.success == true) Resource.Basarili(Unit)
+        else Resource.Hata(cevap.body()?.message ?: "Arıza kaydedilemedi.")
+    } catch (e: Exception) {
+        Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
+    }
+
+    suspend fun arizaDurumGuncelle(id: Int, durum: String): Resource<Unit> = try {
+        val cevap = api.arizaDurumGuncelle(id, DurumIstek(durum))
+        if (cevap.isSuccessful && cevap.body()?.success == true) Resource.Basarili(Unit)
+        else Resource.Hata(cevap.body()?.message ?: "Güncellenemedi.")
+    } catch (e: Exception) {
+        Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
+    }
+
+    suspend fun arizaSil(id: Int): Resource<Unit> = try {
+        val cevap = api.arizaSil(id)
+        if (cevap.isSuccessful && cevap.body()?.success == true) Resource.Basarili(Unit)
+        else Resource.Hata(cevap.body()?.message ?: "Silinemedi.")
+    } catch (e: Exception) {
+        Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
+    }
+
+    /* ------------------------------ YAKIT TAKIP ------------------------------ */
+    suspend fun yakitKayitlariGetir(): Resource<List<YakitKaydi>> {
+        if (!AgDurumu.bagliMi(context)) return Resource.Hata("Çevrimdışısınız.", "offline")
+        return try {
+            val cevap = api.yakitKayitlari()
+            val govde = cevap.body()
+            if (cevap.isSuccessful && govde?.success == true) Resource.Basarili(govde.data.orEmpty())
+            else Resource.Hata(govde?.message ?: "Veriler alınamadı.")
+        } catch (e: Exception) {
+            Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
+        }
+    }
+
+    suspend fun yakitEkle(plaka: String, yakitTipi: String, litre: Double, ad: String?, soyad: String?, telefon: String?): Resource<Unit> = try {
+        val cevap = api.yakitEkle(YakitIstek(plaka, yakitTipi, litre, ad, soyad, telefon))
+        if (cevap.isSuccessful && cevap.body()?.success == true) Resource.Basarili(Unit)
+        else Resource.Hata(cevap.body()?.message ?: "Yakıt kaydı eklenemedi.")
+    } catch (e: Exception) {
+        Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
+    }
+
+    suspend fun yakitSil(id: Int): Resource<Unit> = try {
+        val cevap = api.yakitSil(id)
+        if (cevap.isSuccessful && cevap.body()?.success == true) Resource.Basarili(Unit)
+        else Resource.Hata(cevap.body()?.message ?: "Silinemedi.")
+    } catch (e: Exception) {
+        Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
+    }
+
     /* ------------------------------ KATEGORI / LOKASYON EKLE ------------------------------ */
     suspend fun kategoriEkle(ad: String): Resource<Unit> = try {
         val cevap = api.kategoriEkle(AdIstek(ad))
@@ -292,13 +358,21 @@ class StokRepository(
     private suspend fun gonderMalzemeIslemi(kayit: BekleyenIslemEntity): Boolean {
         return when (kayit.islemTuru) {
             "ekle" -> {
-                val istek = gson.fromJson(kayit.payloadJson, MalzemeIstek::class.java)
-                api.malzemeEkle(istek).let { it.isSuccessful && it.body()?.success == true }
+                val hamIstek = gson.fromJson(kayit.payloadJson, MalzemeIstek::class.java)
+                val dosyaYolu = hamIstek.resim?.data?.removePrefix("dosya://")
+                val istek = fotografiDosyadanGeriYukle(hamIstek)
+                val basarili = api.malzemeEkle(istek).let { it.isSuccessful && it.body()?.success == true }
+                if (basarili && dosyaYolu != null) java.io.File(dosyaYolu).delete()
+                basarili
             }
             "guncelle" -> {
-                val istek = gson.fromJson(kayit.payloadJson, MalzemeIstek::class.java)
+                val hamIstek = gson.fromJson(kayit.payloadJson, MalzemeIstek::class.java)
+                val dosyaYolu = hamIstek.resim?.data?.removePrefix("dosya://")
+                val istek = fotografiDosyadanGeriYukle(hamIstek)
                 val id = kayit.hedefId ?: return true
-                api.malzemeGuncelle(id, istek).let { it.isSuccessful && it.body()?.success == true }
+                val basarili = api.malzemeGuncelle(id, istek).let { it.isSuccessful && it.body()?.success == true }
+                if (basarili && dosyaYolu != null) java.io.File(dosyaYolu).delete()
+                basarili
             }
             "sil" -> {
                 val id = kayit.hedefId ?: return true
@@ -311,13 +385,21 @@ class StokRepository(
     private suspend fun gonderAracIslemi(kayit: BekleyenIslemEntity): Boolean {
         return when (kayit.islemTuru) {
             "ekle" -> {
-                val istek = gson.fromJson(kayit.payloadJson, AracIstek::class.java)
-                api.aracEkle(istek).let { it.isSuccessful && it.body()?.success == true }
+                val hamIstek = gson.fromJson(kayit.payloadJson, AracIstek::class.java)
+                val dosyaYolu = hamIstek.resim?.data?.removePrefix("dosya://")
+                val istek = fotografiDosyadanGeriYukle(hamIstek)
+                val basarili = api.aracEkle(istek).let { it.isSuccessful && it.body()?.success == true }
+                if (basarili && dosyaYolu != null) java.io.File(dosyaYolu).delete()
+                basarili
             }
             "guncelle" -> {
-                val istek = gson.fromJson(kayit.payloadJson, AracIstek::class.java)
+                val hamIstek = gson.fromJson(kayit.payloadJson, AracIstek::class.java)
+                val dosyaYolu = hamIstek.resim?.data?.removePrefix("dosya://")
+                val istek = fotografiDosyadanGeriYukle(hamIstek)
                 val id = kayit.hedefId ?: return true
-                api.aracGuncelle(id, istek).let { it.isSuccessful && it.body()?.success == true }
+                val basarili = api.aracGuncelle(id, istek).let { it.isSuccessful && it.body()?.success == true }
+                if (basarili && dosyaYolu != null) java.io.File(dosyaYolu).delete()
+                basarili
             }
             "sil" -> {
                 val id = kayit.hedefId ?: return true
@@ -328,13 +410,68 @@ class StokRepository(
     }
 
     /* ------------------------------ YARDIMCI: OFFLINE KUYRUK ------------------------------ */
+    /**
+     * KRITIK: Fotografin buyuk base64 verisini asla SQLite satirina
+     * (payloadJson) gommeyiz - Android'in CursorWindow'u ~2MB ile sinirli
+     * olup, fotografli bir kayit bu siniri kolayca asip
+     * "SQLiteBlobTooBigException" ile uygulamayi cokertir. Bunun yerine
+     * fotografi ayri bir dosyaya yazar, veritabanina sadece dosya yolunu
+     * yaziriz. Sunucuya gonderilirken dosyadan geri okunur.
+     */
+    private fun fotografiDosyayaTasi(istek: Any?): Any? {
+        val resimAlaniVarMi = istek is MalzemeIstek || istek is AracIstek
+        if (!resimAlaniVarMi) return istek
+
+        return when (istek) {
+            is MalzemeIstek -> {
+                val yeniResim = istek.resim?.data?.let { veri -> base64iDosyayaYaz(veri) }
+                    ?.let { yol -> istek.resim?.copy(data = "dosya://$yol") }
+                if (istek.resim != null && yeniResim == null) istek else istek.copy(resim = yeniResim ?: istek.resim)
+            }
+            is AracIstek -> {
+                val yeniResim = istek.resim?.data?.let { veri -> base64iDosyayaYaz(veri) }
+                    ?.let { yol -> istek.resim?.copy(data = "dosya://$yol") }
+                if (istek.resim != null && yeniResim == null) istek else istek.copy(resim = yeniResim ?: istek.resim)
+            }
+            else -> istek
+        }
+    }
+
+    private fun base64iDosyayaYaz(veri: String): String? {
+        return try {
+            val klasor = java.io.File(context.cacheDir, "bekleyen_fotolar").apply { if (!exists()) mkdirs() }
+            val dosya = java.io.File(klasor, "${java.util.UUID.randomUUID()}.txt")
+            dosya.writeText(veri)
+            dosya.absolutePath
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun fotografiDosyadanGeriYukle(istek: MalzemeIstek): MalzemeIstek {
+        val veri = istek.resim?.data ?: return istek
+        if (!veri.startsWith("dosya://")) return istek
+        val yol = veri.removePrefix("dosya://")
+        val icerik = try { java.io.File(yol).readText() } catch (e: Exception) { null } ?: return istek.copy(resim = null)
+        return istek.copy(resim = istek.resim?.copy(data = icerik))
+    }
+
+    private fun fotografiDosyadanGeriYukle(istek: AracIstek): AracIstek {
+        val veri = istek.resim?.data ?: return istek
+        if (!veri.startsWith("dosya://")) return istek
+        val yol = veri.removePrefix("dosya://")
+        val icerik = try { java.io.File(yol).readText() } catch (e: Exception) { null } ?: return istek.copy(resim = null)
+        return istek.copy(resim = istek.resim?.copy(data = icerik))
+    }
+
     private suspend fun kuyrugaEkle(varlik: String, islem: String, hedefId: Int?, payload: Any?) {
+        val guvenliPayload = fotografiDosyayaTasi(payload)
         db.bekleyenIslemDao().ekle(
             BekleyenIslemEntity(
                 varlik = varlik,
                 islemTuru = islem,
                 hedefId = hedefId,
-                payloadJson = if (payload != null) gson.toJson(payload) else ""
+                payloadJson = if (guvenliPayload != null) gson.toJson(guvenliPayload) else ""
             )
         )
     }

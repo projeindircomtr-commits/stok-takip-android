@@ -126,6 +126,37 @@
                     <include layout="@layout/item_stat_card" android:id="@+id/cardEur" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnArizaGit"
+                        android:layout_width="0dp"
+                        android:layout_height="52dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:text="Arızalı Araç Bildir"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        app:cornerRadius="14dp"
+                        android:backgroundTint="@color/danger" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnYakitGit"
+                        android:layout_width="0dp"
+                        android:layout_height="52dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:text="Yakıt Takip"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        app:cornerRadius="14dp"
+                        android:backgroundTint="@color/turkuaz" />
+                </LinearLayout>
+
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

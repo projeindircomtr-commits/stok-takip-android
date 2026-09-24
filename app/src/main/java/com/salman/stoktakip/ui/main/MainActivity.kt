@@ -44,6 +44,8 @@ class MainActivity : AppCompatActivity() {
             Triple("Malzeme Ekle", com.salman.stoktakip.R.drawable.ic_box) { goster(MalzemelerFragment.yeniKayitIle()) },
             Triple("Araçlar", com.salman.stoktakip.R.drawable.ic_truck) { goster(AraclarFragment()) },
             Triple("Araç Ekle", com.salman.stoktakip.R.drawable.ic_truck) { goster(AraclarFragment.yeniKayitIle()) },
+            Triple("Arızalı Araçlar", com.salman.stoktakip.R.drawable.ic_wrench) { goster(com.salman.stoktakip.ui.ariza.ArizalarFragment()) },
+            Triple("Yakıt Takip", com.salman.stoktakip.R.drawable.ic_fuel) { goster(com.salman.stoktakip.ui.yakit.YakitFragment()) },
             Triple("Kategoriler / Lokasyon", com.salman.stoktakip.R.drawable.ic_pin) { goster(DepoFragment()) },
             Triple("Raporlar", com.salman.stoktakip.R.drawable.ic_chart) { goster(RaporlarFragment()) }
         )

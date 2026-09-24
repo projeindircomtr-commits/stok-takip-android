@@ -90,6 +90,9 @@ class DashboardFragment : Fragment() {
         binding.cardKritikStok.root.setOnClickListener { git(RaporlarFragment()) }
         binding.cardBekleyenSenkron.root.setOnClickListener { senkronizeEt(repo) }
 
+        binding.btnArizaGit.setOnClickListener { git(com.salman.stoktakip.ui.ariza.ArizalarFragment()) }
+        binding.btnYakitGit.setOnClickListener { git(com.salman.stoktakip.ui.yakit.YakitFragment()) }
+
         binding.btnAra.setOnClickListener {
             val sorgu = binding.editAra.text?.toString()?.trim().orEmpty()
             git(MalzemelerFragment.aramaIle(sorgu))
