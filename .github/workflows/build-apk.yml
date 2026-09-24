@@ -1,0 +1,96 @@
+name: APK Derle
+
+# Ne zaman calisir:
+# - main/master'a her push'ta (otomatik)
+# - Actions sekmesinden elle "Run workflow" ile
+# - "v1.0.0" gibi bir etiket (tag) push'landiginda ayrica GitHub Release olusturur
+on:
+  push:
+    branches: [ "main", "master" ]
+    tags: [ "v*" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kodu indir
+        uses: actions/checkout@v4
+
+      - name: JDK 17 kur
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Gradle kur
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.7
+
+      # ---- 1) DEBUG APK: her zaman calisir, otomatik imzali, direkt kurulabilir ----
+      - name: Debug APK derle
+        run: gradle assembleDebug --no-daemon
+
+      - name: Debug APK'yi yukle (indirilebilir cikti)
+        uses: actions/upload-artifact@v4
+        with:
+          name: stok-takip-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+
+      # ---- 2) RELEASE APK: kucultulmus/optimize edilmis, sonra imzalanir ----
+      - name: Release APK derle (imzasiz)
+        run: gradle assembleRelease --no-daemon
+
+      - name: Imza anahtari hazirla
+        run: |
+          BUILD_TOOLS=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)
+          echo "BUILD_TOOLS=$BUILD_TOOLS" >> "$GITHUB_ENV"
+
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "Depo secrets'inda bulunan ozel imza anahtari kullaniliyor."
+            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+            echo "STORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> "$GITHUB_ENV"
+            echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> "$GITHUB_ENV"
+            echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> "$GITHUB_ENV"
+          else
+            echo "Ozel secret bulunamadi, bu calisma icin gecici bir imza anahtari uretiliyor."
+            echo "(Kalici/guncellenebilir bir uygulama istiyorsaniz repo Settings > Secrets'a"
+            echo " KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD ekleyin.)"
+            keytool -genkeypair -v -keystore release.keystore -alias stokrelease \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "stokGecici2026!" -keypass "stokGecici2026!" \
+              -dname "CN=Salman Santiye Stok Takip, OU=IT, O=Salman, L=Istanbul, S=Istanbul, C=TR"
+            echo "STORE_PASSWORD=stokGecici2026!" >> "$GITHUB_ENV"
+            echo "KEY_ALIAS=stokrelease" >> "$GITHUB_ENV"
+            echo "KEY_PASSWORD=stokGecici2026!" >> "$GITHUB_ENV"
+          fi
+
+      - name: Release APK'yi hizala ve imzala
+        run: |
+          UNSIGNED=$(find app/build/outputs/apk/release -name "*unsigned*.apk" | head -1)
+          "$BUILD_TOOLS/zipalign" -f -p 4 "$UNSIGNED" app-release-aligned.apk
+          "$BUILD_TOOLS/apksigner" sign \
+            --ks release.keystore \
+            --ks-pass "pass:$STORE_PASSWORD" \
+            --ks-key-alias "$KEY_ALIAS" \
+            --key-pass "pass:$KEY_PASSWORD" \
+            --out app-release-signed.apk \
+            app-release-aligned.apk
+          mkdir -p signed-release
+          cp app-release-signed.apk signed-release/StokTakip-release.apk
+
+      - name: Release APK'yi yukle (indirilebilir cikti)
+        uses: actions/upload-artifact@v4
+        with:
+          name: stok-takip-release-apk
+          path: signed-release/StokTakip-release.apk
+
+      # ---- 3) Etiketli (v1.0.0 gibi) push'ta GitHub Release olustur ve APK'lari ekle ----
+      - name: GitHub Release olustur
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            app/build/outputs/apk/debug/*.apk
+            signed-release/StokTakip-release.apk
