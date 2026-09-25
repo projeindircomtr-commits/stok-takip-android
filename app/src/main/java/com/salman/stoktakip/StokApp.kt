@@ -13,6 +13,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.salman.stoktakip.data.SessionManager
+import com.salman.stoktakip.sync.HavaUyariWorker
 import com.salman.stoktakip.sync.SyncWorker
 import java.util.concurrent.TimeUnit
 
@@ -26,6 +27,7 @@ class StokApp : Application() {
         session = SessionManager(this)
         planlaPeriyodikSenkron()
         baglantiDegisimindeSenkronizeEt()
+        planlaHavaUyarisi()
     }
 
     /** Yedek plan: WorkManager 30 dakikada bir bekleyen kayitlari kontrol eder. */
@@ -40,6 +42,27 @@ class StokApp : Application() {
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "otomatik_senkron",
+            ExistingPeriodicWorkPolicy.KEEP,
+            istek
+        )
+    }
+
+    /**
+     * Kis mucadelesi icin: Istanbul'un 39 ilcesini 3 saatte bir arka planda
+     * kontrol eder, don/kar riski varsa bildirim gonderir. Uygulama kapali
+     * olsa bile calisir (WorkManager sistem tarafindan tetiklenir).
+     */
+    private fun planlaHavaUyarisi() {
+        val kisitlamalar = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val istek = PeriodicWorkRequestBuilder<HavaUyariWorker>(3, TimeUnit.HOURS)
+            .setConstraints(kisitlamalar)
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "hava_uyari_kontrolu",
             ExistingPeriodicWorkPolicy.KEEP,
             istek
         )

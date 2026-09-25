@@ -172,6 +172,17 @@
                     app:cornerRadius="14dp"
                     android:backgroundTint="@color/yesil" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnHavaGit"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="8dp"
+                    android:text="❄️  Hava Durumu (39 İlçe)"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    app:cornerRadius="14dp"
+                    android:backgroundTint="@color/dark" />
+
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

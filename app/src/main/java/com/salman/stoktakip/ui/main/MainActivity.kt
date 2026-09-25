@@ -1,6 +1,7 @@
 package com.salman.stoktakip.ui.main
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import androidx.activity.OnBackPressedCallback
@@ -23,10 +24,18 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
+    private val bildirimIzniIste = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { /* kullanici ne secerse secsin devam - reddederse sadece uygulama-ici banner calisir */ }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            bildirimIzniIste.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
 
         val session = ServiceLocator.session(this)
         if (!session.girisYapilmisMi) {
@@ -63,6 +72,7 @@ class MainActivity : AppCompatActivity() {
             Triple("Araç Ekle", com.salman.stoktakip.R.drawable.ic_truck) { goster(AraclarFragment.yeniKayitIle()) },
             Triple("Yakıt Takip", com.salman.stoktakip.R.drawable.ic_fuel) { goster(com.salman.stoktakip.ui.yakit.YakitFragment()) },
             Triple("Yemek Takip", com.salman.stoktakip.R.drawable.ic_food) { goster(com.salman.stoktakip.ui.yemek.YemekFragment()) },
+            Triple("Hava Durumu (39 İlçe)", com.salman.stoktakip.R.drawable.ic_snow) { goster(com.salman.stoktakip.ui.hava.HavaDurumuFragment()) },
             Triple("Kategoriler / Lokasyon", com.salman.stoktakip.R.drawable.ic_pin) { goster(DepoFragment()) },
             Triple("Raporlar", com.salman.stoktakip.R.drawable.ic_chart) { goster(RaporlarFragment()) }
         )

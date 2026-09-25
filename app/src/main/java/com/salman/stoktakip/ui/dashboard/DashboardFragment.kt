@@ -91,6 +91,7 @@ class DashboardFragment : Fragment() {
 
         binding.btnYakitGit.setOnClickListener { git(com.salman.stoktakip.ui.yakit.YakitFragment()) }
         binding.btnYemekGit.setOnClickListener { git(com.salman.stoktakip.ui.yemek.YemekFragment()) }
+        binding.btnHavaGit.setOnClickListener { git(com.salman.stoktakip.ui.hava.HavaDurumuFragment()) }
 
         binding.editAra.setOnEditorActionListener { _, _, _ ->
             val sorgu = binding.editAra.text?.toString()?.trim().orEmpty()
