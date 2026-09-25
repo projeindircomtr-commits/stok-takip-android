@@ -57,18 +57,35 @@ class HavaDurumuFragment : Fragment() {
         }
     }
 
+    private fun ilceIkonuSec(ilce: IlceHava): Int {
+        // Sert ruzgar/lodos her sartta oncelikli gosterilsin (kis mucadelesinde onemli)
+        if (ilce.ruzgarKmh >= 40) return R.drawable.ic_weather_wind
+        return when (ilce.havaKodu) {
+            0 -> R.drawable.ic_weather_sun
+            1 -> R.drawable.ic_weather_sun
+            2 -> R.drawable.ic_weather_partly
+            3 -> R.drawable.ic_weather_cloud
+            45, 48 -> R.drawable.ic_weather_fog
+            51, 53, 55, 61, 63, 65, 80, 81, 82 -> R.drawable.ic_weather_rain
+            71, 73, 75, 77, 85, 86 -> R.drawable.ic_snow
+            95, 96, 99 -> R.drawable.ic_weather_storm
+            else -> R.drawable.ic_weather_cloud
+        }
+    }
+
     private fun ekleSatir(ilce: IlceHava) {
         val satir = ItemIlceHavaBinding.inflate(layoutInflater, binding.listIlceler, false)
         satir.txtIlce.text = ilce.ad
         satir.txtSicaklik.text = "${ilce.sicaklik}°C"
         satir.txtDetay.text = "${ilce.havaMetni} • En düşük ${ilce.minSicaklik}°C • Rüzgar ${ilce.ruzgarKmh} km/s"
+        satir.imgIkon.setImageResource(ilceIkonuSec(ilce))
 
         if (ilce.riskli) {
             satir.imgIkon.setColorFilter(android.graphics.Color.parseColor("#00B4D8"))
             satir.txtSicaklik.setTextColor(android.graphics.Color.parseColor("#E74C3C"))
             satir.root.setCardBackgroundColor(android.graphics.Color.parseColor("#FFF5F5"))
         } else {
-            satir.imgIkon.setColorFilter(android.graphics.Color.parseColor("#B9CBD4"))
+            satir.imgIkon.setColorFilter(android.graphics.Color.parseColor("#0F4C81"))
             satir.txtSicaklik.setTextColor(android.graphics.Color.parseColor("#0F4C81"))
             satir.root.setCardBackgroundColor(android.graphics.Color.WHITE)
         }
