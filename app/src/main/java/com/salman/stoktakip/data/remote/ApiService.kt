@@ -42,6 +42,15 @@ interface ApiService {
     @DELETE("yemek.php")
     suspend fun yemekSil(@Query("id") id: Int): Response<ApiResponse<Any>>
 
+    @GET("evraklar.php")
+    suspend fun evraklar(): Response<ApiResponse<List<Evrak>>>
+
+    @POST("evraklar.php")
+    suspend fun evrakEkle(@Body istek: EvrakIstek): Response<ApiResponse<Map<String, Int>>>
+
+    @DELETE("evraklar.php")
+    suspend fun evrakSil(@Query("id") id: Int): Response<ApiResponse<Any>>
+
     @GET("kategoriler.php")
     suspend fun kategoriler(): Response<ApiResponse<List<Kategori>>>
 

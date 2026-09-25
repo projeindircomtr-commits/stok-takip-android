@@ -183,3 +183,25 @@ data class YemekIstek(
     val ogun: String,
     @SerializedName("not_metni") val notMetni: String?
 )
+
+data class Evrak(
+    val id: Int,
+    @SerializedName("arac_id") val aracId: Int?,
+    @SerializedName("evrak_tipi") val evrakTipi: String,
+    @SerializedName("ilgili_ad") val ilgiliAd: String,
+    @SerializedName("son_gecerlilik_tarihi") val sonGecerlilikTarihi: String,
+    val resim: String?,
+    @SerializedName("not_metni") val notMetni: String?,
+    @SerializedName("arac_ismi") val aracIsmi: String?,
+    val plaka: String?,
+    @SerializedName("kalan_gun") val kalanGun: Int
+)
+
+data class EvrakIstek(
+    @SerializedName("arac_id") val aracId: Int?,
+    @SerializedName("evrak_tipi") val evrakTipi: String,
+    @SerializedName("ilgili_ad") val ilgiliAd: String,
+    @SerializedName("son_gecerlilik_tarihi") val sonGecerlilikTarihi: String,
+    val resim: ResimYuku?,
+    @SerializedName("not_metni") val notMetni: String?
+)

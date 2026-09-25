@@ -73,6 +73,8 @@ class MainActivity : AppCompatActivity() {
             Triple("Yakıt Takip", com.salman.stoktakip.R.drawable.ic_fuel) { goster(com.salman.stoktakip.ui.yakit.YakitFragment()) },
             Triple("Yemek Takip", com.salman.stoktakip.R.drawable.ic_food) { goster(com.salman.stoktakip.ui.yemek.YemekFragment()) },
             Triple("Hava Durumu (39 İlçe)", com.salman.stoktakip.R.drawable.ic_snow) { goster(com.salman.stoktakip.ui.hava.HavaDurumuFragment()) },
+            Triple("Evrak Süre Takip", com.salman.stoktakip.R.drawable.ic_document) { goster(com.salman.stoktakip.ui.evrak.EvrakFragment()) },
+            Triple("Anlık Trafik", com.salman.stoktakip.R.drawable.ic_traffic) { goster(com.salman.stoktakip.ui.trafik.TrafikFragment()) },
             Triple("Kategoriler / Lokasyon", com.salman.stoktakip.R.drawable.ic_pin) { goster(DepoFragment()) },
             Triple("Raporlar", com.salman.stoktakip.R.drawable.ic_chart) { goster(RaporlarFragment()) }
         )

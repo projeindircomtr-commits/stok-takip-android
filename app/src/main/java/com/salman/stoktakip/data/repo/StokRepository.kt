@@ -291,6 +291,37 @@ class StokRepository(
         Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
     }
 
+    /* ------------------------------ EVRAK SURE TAKIP ------------------------------ */
+    suspend fun evraklarGetir(): Resource<List<Evrak>> {
+        if (!AgDurumu.bagliMi(context)) return Resource.Hata("Çevrimdışısınız.", "offline")
+        return try {
+            val cevap = api.evraklar()
+            val govde = cevap.body()
+            if (cevap.isSuccessful && govde?.success == true) Resource.Basarili(govde.data.orEmpty())
+            else Resource.Hata(govde?.message ?: "Veriler alınamadı.")
+        } catch (e: Exception) {
+            Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
+        }
+    }
+
+    suspend fun evrakEkle(
+        aracId: Int?, evrakTipi: String, ilgiliAd: String, tarih: String, resim: ResimYuku?, notMetni: String?
+    ): Resource<Unit> = try {
+        val cevap = api.evrakEkle(EvrakIstek(aracId, evrakTipi, ilgiliAd, tarih, resim, notMetni))
+        if (cevap.isSuccessful && cevap.body()?.success == true) Resource.Basarili(Unit)
+        else Resource.Hata(cevap.body()?.message ?: "Evrak kaydedilemedi.")
+    } catch (e: Exception) {
+        Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
+    }
+
+    suspend fun evrakSil(id: Int): Resource<Unit> = try {
+        val cevap = api.evrakSil(id)
+        if (cevap.isSuccessful && cevap.body()?.success == true) Resource.Basarili(Unit)
+        else Resource.Hata(cevap.body()?.message ?: "Silinemedi.")
+    } catch (e: Exception) {
+        Resource.Hata(e.message ?: "Sunucuya bağlanılamadı.")
+    }
+
     /* ------------------------------ KATEGORI / LOKASYON EKLE ------------------------------ */
     suspend fun kategoriEkle(ad: String): Resource<Unit> = try {
         val cevap = api.kategoriEkle(AdIstek(ad))
