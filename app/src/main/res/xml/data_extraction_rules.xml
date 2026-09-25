@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="secure_session_prefs.xml" />
+        <exclude domain="database" path="stok_takip.db" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="secure_session_prefs.xml" />
+        <exclude domain="database" path="stok_takip.db" />
+    </device-transfer>
+</data-extraction-rules>

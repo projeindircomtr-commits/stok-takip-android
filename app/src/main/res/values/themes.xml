@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.StokTakip" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/mavi</item>
+        <item name="colorPrimaryVariant">@color/dark</item>
+        <item name="colorSecondary">@color/turkuaz</item>
+        <item name="colorSecondaryVariant">@color/yesil</item>
+        <item name="android:statusBarColor">@color/mavi</item>
+        <item name="android:windowBackground">@color/soft_bg</item>
+    </style>
+
+    <style name="Theme.StokTakip.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>
